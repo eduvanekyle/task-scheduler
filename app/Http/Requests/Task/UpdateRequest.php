@@ -22,6 +22,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'project_id' => ['required', 'integer', 'exists:projects,id'],
             'name' => ['required', 'string', 'max:255'],
         ];
     }

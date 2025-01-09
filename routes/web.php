@@ -21,15 +21,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects', [ProjectController::class, 'index'])->name('project.index');
     Route::prefix('project')->group(function () {
         Route::post('/', [ProjectController::class, 'store'])->name('project.store');
+        Route::get('/{id}', [ProjectController::class, 'show'])->name('project.show');
     });
 
-    Route::get('/tasks', [TaskController::class, 'index'])->name('task.index');
     Route::prefix('task')->group(function () {
-        Route::post('/', [TaskController::class, 'store'])->name('task.store');
-        Route::put('/{id}', [TaskController::class, 'update'])->name('task.update');
+        Route::post('/{id}', [TaskController::class, 'store'])->name('task.store');
+        Route::put('/update/{id}', [TaskController::class, 'update'])->name('task.update');
         Route::delete('/{id}', [TaskController::class, 'delete'])->name('task.delete');
-        Route::post('/reorder', [TaskController::class, 'reorder'])->name('task.reorder');
     });
+
+    Route::post('/reorder', [TaskController::class, 'reorder'])->name('task.reorder');
 });
 
 require __DIR__ . '/auth.php';

@@ -23,12 +23,12 @@
                                 <div class="p-1.5 min-w-full inline-block align-middle">
                                     <div class="overflow-hidden">
                                         <div class="header mb-5 flex flex-row justify-between align-center">
-                                            <h2 class="font-inter font-bold text-2xl text-gray-800">Tasks</h2>
+                                            <h2 class="font-inter font-bold text-2xl text-gray-800">{{ $project->name }}</h2>
                                             <button id="new-task-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold h-8 rounded font-inter px-2 text-sm" onclick="showTaskForm()">
                                                 New Task
                                             </button>
 
-                                            <form class="hidden" id="new-task-form" action="{{ route('task.store') }}" method="POST">
+                                            <form class="hidden" id="new-task-form" action="{{ route('task.store', ['id' => $project->id]) }}" method="POST">
                                                 @csrf
                                                 <x-text-input id="task-name" class="w-full h-8 font-inter text-sm" type="text" name="name" placeholder="Task Name" required />
                                                 <div class="flex gap-1">
@@ -52,10 +52,10 @@
                                             </thead>
                                             <tbody class="divide-y divide-gray-200">
                                                 @foreach ($tasks as $key => $task)
-                                                <tr class="hover:bg-gray-100" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event, '{{ $task->priority }}')" data-priority="{{ $task->priority }}">
+                                                <tr class="hover:bg-gray-100" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event, '{{ $project->id }}')" data-priority="{{ $task->priority }}">
                                                     <td id="task-col-{{ $key }}" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 ">{{ $task->name }}</td>
                                                     <td class="hidden w-0" id="edit-task-form-{{ $key }}">
-                                                        <form class="flex gap-3 px-5 py-3 m-0" id="" action="{{ route('task.update', ['id' => $task->id]) }}" method="POST">
+                                                        <form class="flex gap-3 px-5 py-3 m-0" id="" action="{{ route('task.update', ['id' => $task->id, 'project_id' => $project->id]) }}" method="POST">
                                                             @csrf
                                                             @method('PUT')
 
@@ -85,7 +85,7 @@
                                                             </svg>
                                                         </button>
 
-                                                        <form class="inline-flex" action="{{ route('task.delete', ['id' => $task->id]) }}" method="POST">
+                                                        <form class="inline-flex" action="{{ route('task.delete', ['id' => $task->id, 'project_id' => $project->id]) }}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" id="delete-task-button-{{ $key }}" class="items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-500 disabled:text-gray-400">

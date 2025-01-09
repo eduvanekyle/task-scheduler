@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Task\ReorderRequest;
 use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Task\StoreRequest;
 use App\Http\Requests\Task\UpdateRequest;
+use App\Http\Requests\Task\ReorderRequest;
 
 class TaskController extends Controller
 {
@@ -27,12 +28,16 @@ class TaskController extends Controller
         }
     }
 
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request, $projectId)
     {
         try {
             $userId = auth()->user()->id;
 
-            $tasks = Task::where('user_id', $userId);
+            $project = Project::find($projectId);
+
+            Gate::authorize('create', $project);
+
+            $tasks = Task::where('project_id', $project->id);
 
             $latest = $tasks->max('priority') ?? 0; // latest is zero if there are no tasks
 
@@ -43,7 +48,7 @@ class TaskController extends Controller
             }
 
             Task::create([
-                'user_id' => $userId,
+                'project_id' => $project->id,
                 'name' => $request->name,
                 'priority' => $latest + 1
             ]);
@@ -71,9 +76,11 @@ class TaskController extends Controller
                 ], 404);
             }
 
-            Gate::authorize('update', $task);
+            $project = Project::find($request->project_id);
 
-            $tasks = Task::where('user_id', auth()->user()->id)
+            Gate::authorize('update', $project);
+
+            $tasks = Task::where('project_id', $project->id)
                 ->whereNot('id', $task->id);
 
             $existing = $tasks->where('name', $request->name);
@@ -86,10 +93,6 @@ class TaskController extends Controller
                 'name' => $request->name
             ]);
 
-            if ($task->isClean()) {
-                return redirect()->back()->with('error', 'No changes made.');
-            }
-
             return redirect()->back()->with('success', 'Task updated successfully!');
         } catch (\Exception $e) {
             \Log::info($e);
@@ -98,7 +101,7 @@ class TaskController extends Controller
         }
     }
 
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         try {
             $task = Task::find($id);
@@ -110,9 +113,11 @@ class TaskController extends Controller
                 ], 404);
             }
 
-            Gate::authorize('delete', $task);
+            $project = Project::find($request->project_id);
 
-            Task::where('user_id', auth()->user()->id)
+            Gate::authorize('update', $project);
+
+            Task::where('project_id', $project->id)
                 ->where('priority', '>', $task->priority)
                 ->decrement('priority', 1);
 
@@ -130,13 +135,19 @@ class TaskController extends Controller
     {
         try {
             $userId = auth()->user()->id;
-            $latest = Task::where('user_id', $userId)->max('priority');
 
-            $selected = Task::where('user_id', $userId)
+            $project = Project::find($request->project_id);
+
+            Gate::authorize('update', $project);
+
+            $latest = Task::where('project_id', $project->id)->max('priority');
+
+            // Get selected and targeted tasks
+            $selected = Task::where('project_id', $project->id)
                 ->where('priority', $request->selected_priority)
                 ->first();
 
-            $targeted = Task::where('user_id', $userId)
+            $targeted = Task::where('project_id', $project->id)
                 ->where('priority', $request->target_priority)
                 ->first();
 
@@ -144,8 +155,9 @@ class TaskController extends Controller
                 return redirect()->back()->with('error', 'Invalid order.');
             }
 
+            // Algorithm for modifying priority
             if ($selected->priority == 1 && $targeted->priority == $latest) {
-                Task::where('user_id', $userId)
+                Task::where('project_id', $project->id)
                     ->whereBetween('priority', [1, $latest])
                     ->decrement('priority', 1);
 
@@ -153,7 +165,7 @@ class TaskController extends Controller
                     'priority' => $latest
                 ]);
             } else if ($selected->priority == $latest && $targeted->priority == 1) {
-                Task::where('user_id', $userId)
+                Task::where('project_id', $project->id)
                     ->whereBetween('priority', [2, $latest])
                     ->increment('priority', 1);
 
@@ -171,9 +183,9 @@ class TaskController extends Controller
                     $lower = $targeted->priority;
                 }
 
-                Task::where('user_id', $userId)
+                Task::where('project_id', $project->id)
                     ->whereBetween('priority', [$lower, $higher])
-                    ->$operation('priority', 1);
+                    ->$operation('priority', 1); // Increment or decrement
 
                 $selected->update([
                     'priority' => $targeted->priority

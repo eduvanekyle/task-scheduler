@@ -15,7 +15,7 @@
         @include('layouts.navigation')
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white  shadow-sm sm:rounded-lg h-[200px]">
                     <div class="p-6">
                         <div class="flex flex-col">
@@ -25,7 +25,7 @@
                                         <div class="header mb-5 justify-between align-center">
                                             <h2 class="font-inter font-bold text-2xl text-gray-800 mb-5">Projects</h2>
 
-                                            <div class="flex gap-2">
+                                            <div class="flex gap-2 justify-between">
                                                 <x-dropdown align="left" width="48">
                                                     <x-slot name="trigger">
                                                         <button class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-inter font-medium rounded-md text-gray-600 bg-white hover:text-gray-700 transition ease-in-out duration-150">
@@ -41,7 +41,7 @@
 
                                                     <x-slot name="content">
                                                         @foreach($projects as $key => $project)
-                                                        <x-dropdown-link :href="route('profile.edit')" class="font-inter font-medium text-sm text-gray-600 overflow-hidden">
+                                                        <x-dropdown-link :href="route('project.show', ['id' => $project->id])" class="font-inter font-medium text-sm text-gray-600 overflow-hidden">
                                                             {{ $project->name }}
                                                         </x-dropdown-link>
                                                         @endforeach

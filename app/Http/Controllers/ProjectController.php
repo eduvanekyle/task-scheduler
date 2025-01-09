@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Project\StoreRequest;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\Project\StoreRequest;
 
 class ProjectController extends Controller
 {
@@ -28,9 +29,12 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::with('tasks')
-                ->where('user_id', auth()->user()->id);
+                ->where('id', $id)
+                ->first();
 
-            // \Log::info($project->tasks);
+            Gate::authorize('view', $project); // Use policies for added authorization
+
+            return view('task', ['tasks' => $project->tasks, 'project' => $project]);
         } catch (\Exception $e) {
             \Log::info($e);
 

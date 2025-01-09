@@ -33,11 +33,6 @@ const showEditTaskForm = (key) => {
         taskName.classList.add('hidden');
         editTaskForm.classList.add('flex', 'flex-row', 'gap-3', 'align-center');
     }
-
-    console.log(editTaskButton)
-    console.log(deleteTaskButton)
-    console.log(editTaskForm)
-    console.log(taskName)
 }
 
 let firstPriority = null;
@@ -50,19 +45,19 @@ const allowDrop = (event) => {
     event.preventDefault()
 }
 
-const drop = (event, priority) => {
+const drop = (event, projectId) => {
     event.preventDefault()
 
     let targetPriority = event.target.closest('tr').dataset.priority;
     let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    console.log(csrfToken)
 
     let data = {
         selected_priority: firstPriority,
         target_priority: targetPriority,
+        project_id: projectId
     }
 
-    axios.post('/task/reorder', data, {
+    axios.post('/reorder', data, {
         headers: {
             'Accept': 'application/json',
             'X-CSRF-TOKEN': csrfToken

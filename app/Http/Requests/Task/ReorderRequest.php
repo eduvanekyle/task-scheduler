@@ -24,6 +24,7 @@ class ReorderRequest extends FormRequest
         return [
             'selected_priority' => ['required', 'integer'],
             'target_priority' => ['required', 'integer', 'different:selected_priority'],
+            'project_id' => ['required', 'integer', 'exists:projects,id'],
         ];
     }
 }

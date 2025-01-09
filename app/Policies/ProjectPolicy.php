@@ -2,12 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Task;
-use App\Models\User;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class TaskPolicy
+class ProjectPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -20,15 +19,15 @@ class TaskPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Task $task): bool
+    public function view(User $user, Project $project): bool
     {
-        return true;
+        return $user->id === $project->user_id;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Task $task, Project $project): bool
+    public function create(User $user, Project $project): bool
     {
         return $user->id === $project->user_id;
     }
@@ -36,23 +35,23 @@ class TaskPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Task $task): bool
+    public function update(User $user, Project $project): bool
     {
-        return $user->id === $task->user_id;
+        return $user->id === $project->user_id;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Task $task): bool
+    public function delete(User $user, Project $project): bool
     {
-        return $user->id === $task->user_id;
+        return $user->id === $project->user_id;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Task $task): bool
+    public function restore(User $user, Project $project): bool
     {
         return false;
     }
@@ -60,13 +59,8 @@ class TaskPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Task $task): bool
+    public function forceDelete(User $user, Project $project): bool
     {
         return false;
-    }
-
-    public function viewProject(User $user, Project $project): bool
-    {
-        return true;
     }
 }
