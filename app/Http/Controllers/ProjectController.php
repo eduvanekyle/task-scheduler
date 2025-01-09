@@ -18,10 +18,7 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             \Log::info($e);
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -38,10 +35,7 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             \Log::info($e);
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -67,10 +61,7 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             \Log::info($e);
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 }

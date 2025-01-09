@@ -21,10 +21,7 @@ class TaskController extends Controller
         } catch (\Exception $e) {
             \Log::info($e);
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -166,7 +163,7 @@ class TaskController extends Controller
                 ]);
             } else if ($selected->priority == $latest && $targeted->priority == 1) {
                 Task::where('project_id', $project->id)
-                    ->whereBetween('priority', [2, $latest])
+                    ->whereBetween('priority', [1, $latest])
                     ->increment('priority', 1);
 
                 $selected->update([
